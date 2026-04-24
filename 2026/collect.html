@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Collect the Stars!</title>
+
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: #eef6ff;
+  }
+
+  #game {
+    width: 400px;
+    height: 300px;
+    border: 3px solid black;
+    margin: 20px auto;
+    position: relative;
+    background: white;
+  }
+
+  #player {
+    width: 40px;
+    height: 40px;
+    background: blue;
+    position: absolute;
+    left: 180px;
+    top: 130px;
+  }
+
+  .star {
+    width: 30px;
+    height: 30px;
+    background: gold;
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  #overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    flex-direction: column;
+  }
+</style>
+</head>
+<body>
+
+<h2>⭐ Collect the Stars!</h2>
+
+Difficulty:
+<select id="difficulty">
+  <option value="easy">Easy</option>
+  <option value="medium">Medium</option>
+  <option value="hard">Hard</option>
+</select>
+
+<p>
+Score: <span id="score">0</span> |
+Time: <span id="time">30</span>
+</p>
+
+<div id="game">
+  <div id="player"></div>
+  <div id="overlay"></div>
+</div>
+
+<script>
+  const game = document.getElementById("game");
+  const player = document.getElementById("player");
+  const overlay = document.getElementById("overlay");
+  const scoreSpan = document.getElementById("score");
+  const timeSpan = document.getElementById("time");
+  const difficultySelect = document.getElementById("difficulty");
+
+  let x = 180;
+  let y = 130;
+  let score = 0;
+  let timeLeft = 30;
+  let speed = 4;
+  let gameOver = false;
+
+  function startGame() {
+    const diff = difficultySelect.value;
+    speed = diff === "easy" ? 4 : diff === "medium" ? 6 : 8;
+    timeLeft = diff === "easy" ? 40 : diff === "medium" ? 30 : 20;
+
+    score = 0;
+    scoreSpan.textContent = score;
+    timeSpan.textContent = timeLeft;
+    overlay.style.display = "none";
+    gameOver = false;
+
+    document.querySelectorAll(".star").forEach(s => s.remove());
+    spawnStars(5);
+  }
+
+  function spawnStars(count) {
+    for (let i = 0; i < count; i++) {
+      const star = document.createElement("div");
+      star.className = "star";
+      star.style.left = Math.random() * 370 + "px";
+      star.style.top = Math.random() * 270 + "px";
+      game.appendChild(star);
+    }
+  }
+
+  document.addEventListener("keydown", e => {
+    if (gameOver) return;
+
+    if (e.key === "ArrowUp") y -= speed;
+    if (e.key === "ArrowDown") y += speed;
+    if (e.key === "ArrowLeft") x -= speed;
+    if (e.key === "ArrowRight") x += speed;
+
+    x = Math.max(0, Math.min(360, x));
+    y = Math.max(0, Math.min(260, y));
+
+    player.style.left = x + "px";
+    player.style.top = y + "px";
+
+    checkCollision();
+  });
+
+  function checkCollision() {
+    document.querySelectorAll(".star").forEach(star => {
+      const sx = star.offsetLeft;
+      const sy = star.offsetTop;
+
+      if (
+        x < sx + 30 &&
+        x + 40 > sx &&
+        y < sy + 30 &&
+        y + 40 > sy
+      ) {
+        star.remove();
+        score++;
+        scoreSpan.textContent = score;
+
+        if (document.querySelectorAll(".star").length === 0) {
+          spawnStars(5);
+        }
+      }
+    });
+  }
+
+  setInterval(() => {
+    if (gameOver) return;
+
+    timeLeft--;
+    timeSpan.textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      gameOver = true;
+      overlay.innerHTML = `Time’s Up!<br>Score: ${score}<br><small>Press refresh to play again</small>`;
+      overlay.style.display = "flex";
+    }
+  }, 1000);
+
+  startGame();
+</script>
+
+</body>
+</html>
