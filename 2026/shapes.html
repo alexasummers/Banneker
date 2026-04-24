@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Click the Shapes!</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #eaffea;
+    }
+
+    #game {
+      width: 400px;
+      height: 300px;
+      border: 3px solid black;
+      margin: 20px auto;
+      position: relative;
+      background: white;
+    }
+
+    .shape {
+      width: 60px;
+      height: 60px;
+      background: red;
+      position: absolute;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🎯 Click the Shapes!</h2>
+
+Difficulty:
+<select id="difficulty">
+  <option value="easy">Easy</option>
+  <option value="medium">Medium</option>
+  <option value="hard">Hard</option>
+</select>
+
+<p>Score: <span id="score">0</span></p>
+
+<div id="game"></div>
+
+<script>
+  const game = document.getElementById("game");
+  const scoreSpan = document.getElementById("score");
+  const difficultySelect = document.getElementById("difficulty");
+
+  let score = 0;
+
+  function spawnShape() {
+    const shape = document.createElement("div");
+    shape.className = "shape";
+
+    const size =
+      difficultySelect.value === "easy" ? 80 :
+      difficultySelect.value === "medium" ? 60 : 40;
+
+    shape.style.width = size + "px";
+    shape.style.height = size + "px";
+
+    shape.style.left = Math.random() * (400 - size) + "px";
+    shape.style.top = Math.random() * (300 - size) + "px";
+
+    shape.onclick = () => {
+      score++;
+      scoreSpan.textContent = score;
+      shape.remove();
+    };
+
+    game.appendChild(shape);
+
+    setTimeout(() => {
+      shape.remove();
+    }, difficultySelect.value === "hard" ? 800 : 1500);
+  }
+
+  setInterval(spawnShape, 1000);
+</script>
+
+</body>
+</html>
