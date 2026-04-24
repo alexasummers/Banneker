@@ -82,7 +82,14 @@ const difficultySelect = document.getElementById("difficulty");
 let x = 180, y = 130;
 let score = 0;
 let timeLeft = 30;
-let speed = 5;
+  
+function getSpeed() {
+  const diff = difficultySelect.value;
+  if (diff === "easy") return 3;
+  if (diff === "medium") return 5;
+  return 8;
+}
+
 let starCount = 5;
 let playing = true;
 
@@ -125,10 +132,14 @@ function setupStars() {
 document.addEventListener("keydown", e => {
   if (!playing) return;
 
-  if (e.key === "ArrowUp") y -= speed;
-  if (e.key === "ArrowDown") y += speed;
-  if (e.key === "ArrowLeft") x -= speed;
-  if (e.key === "ArrowRight") x += speed;
+
+const speed = getSpeed();
+
+if (e.key === "ArrowUp") y -= speed;
+if (e.key === "ArrowDown") y += speed;
+if (e.key === "ArrowLeft") x -= speed;
+if (e.key === "ArrowRight") x += speed;
+
 
   x = Math.max(0, Math.min(360, x));
   y = Math.max(0, Math.min(260, y));
