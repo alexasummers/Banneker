@@ -1,92 +1,82 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Click the Monster!</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
+<meta charset="UTF-8">
+<title>Click the Target!</title>
 
-    #gameArea {
-      width: 400px;
-      height: 300px;
-      border: 3px solid black;
-      margin: 20px auto;
-      position: relative;
-      background: #e0f7ff;
-    }
-
-    .monster {
-      width: 80px;
-      height: 80px;
-      background: purple;
-      border-radius: 50%;
-      position: absolute;
-      cursor: pointer;
-    }
-  </style>
+<style>
+  body { font-family: Arial; text-align: center; background:#f0f0f0; }
+  #game {
+    width:400px; height:300px;
+    border:3px solid black;
+    margin:20px auto;
+    position:relative;
+    background:white;
+  }
+  .target {
+    width:50px; height:50px;
+    background:red;
+    border-radius:50%;
+    position:absolute;
+    cursor:pointer;
+  }
+  #overlay {
+    position:absolute; inset:0;
+    background:rgba(0,0,0,.6);
+    color:white;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+  }
+</style>
 </head>
 <body>
 
 <h2>🎯 Click the Target!</h2>
 
-Difficulty:
-<select id="difficulty">
-  <option value="easy">Easy</option>
-  <option value="medium">Medium</option>
-  <option value="hard">Hard</option>
-</select>
+<p>Score: <span id="score">0</span> | Time: <span id="time">15</span></p>
 
-<p>Score: <span id="score">0</span></p>
-
-<div id="gameArea"></div>
+<div id="game">
+  <div id="overlay">Time’s Up!</div>
+</div>
 
 <script>
-  const gameArea = document.getElementById("gameArea");
-  const scoreDisplay = document.getElementById("score");
-  const difficultySelect = document.getElementById("difficulty");
+const game=document.getElementById("game");
+const scoreSpan=document.getElementById("score");
+const timeSpan=document.getElementById("time");
+const overlay=document.getElementById("overlay");
 
-  let score = 0;
-  let monster;
-  let timer;
+let score=0,timeLeft=15,playing=true;
 
-  function spawnMonster() {
-    if (monster) monster.remove();
+function target(){
+  if(!playing) return;
 
-    monster = document.createElement("div");
-    monster.className = "monster";
+  const t=document.createElement("div");
+  t.className="target";
+  t.style.left=Math.random()*350+"px";
+  t.style.top=Math.random()*250+"px";
 
-    let speed = 1500;
-    let size = 80;
+  t.onclick=()=>{
+    score++;
+    scoreSpan.textContent=score;
+    t.remove();
+  };
 
-    if (difficultySelect.value === "medium") {
-      speed = 1000;
-      size = 60;
-    } else if (difficultySelect.value === "hard") {
-      speed = 600;
-      size = 40;
-    }
+  game.appendChild(t);
+  setTimeout(()=>t.remove(),1000);
+}
 
-    monster.style.width = size + "px";
-    monster.style.height = size + "px";
+setInterval(target,800);
 
-    monster.style.left = Math.random() * (400 - size) + "px";
-    monster.style.top = Math.random() * (300 - size) + "px";
-
-    monster.onclick = () => {
-      score++;
-      scoreDisplay.textContent = score;
-      spawnMonster();
-    };
-
-    gameArea.appendChild(monster);
-
-    clearTimeout(timer);
-    timer = setTimeout(spawnMonster, speed);
+setInterval(()=>{
+  timeLeft--;
+  timeSpan.textContent=timeLeft;
+  if(timeLeft<=0){
+    playing=false;
+    overlay.style.display="flex";
   }
-
-  spawnMonster();
+},1000);
 </script>
 
 </body>
