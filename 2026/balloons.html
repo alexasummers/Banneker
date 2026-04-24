@@ -1,33 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Pop the Balloons!</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      background: #eef6ff;
-    }
+<meta charset="UTF-8">
+<title>Pop the Balloons!</title>
 
-    #game {
-      width: 400px;
-      height: 300px;
-      border: 3px solid black;
-      margin: 20px auto;
-      position: relative;
-      overflow: hidden;
-      background: skyblue;
-    }
-
-    .balloon {
-      width: 50px;
-      height: 70px;
-      border-radius: 50%;
-      position: absolute;
-      cursor: pointer;
-    }
-  </style>
+<style>
+  body { font-family: Arial; text-align: center; background: #eef6ff; }
+  #game {
+    width: 400px; height: 300px;
+    border: 3px solid black;
+    margin: 20px auto;
+    position: relative;
+    background: skyblue;
+    overflow: hidden;
+  }
+  .balloon {
+    width: 50px; height: 70px;
+    border-radius: 50%;
+    position: absolute;
+    cursor: pointer;
+  }
+  #overlay {
+    position: absolute; inset: 0;
+    background: rgba(0,0,0,.6);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+  }
+</style>
 </head>
 <body>
 
@@ -40,48 +42,64 @@ Difficulty:
   <option value="hard">Hard</option>
 </select>
 
-<p>Score: <span id="score">0</span></p>
+<p>Score: <span id="score">0</span> | Time: <span id="time">20</span></p>
 
-<div id="game"></div>
+<div id="game">
+  <div id="overlay" style="display:none">Time’s Up!</div>
+</div>
 
 <script>
-  const game = document.getElementById("game");
-  const scoreDisplay = document.getElementById("score");
-  let score = 0;
+const game = document.getElementById("game");
+const scoreSpan = document.getElementById("score");
+const timeSpan = document.getElementById("time");
+const overlay = document.getElementById("overlay");
+const difficulty = document.getElementById("difficulty");
 
-  function makeBalloon() {
-    const balloon = document.createElement("div");
-    balloon.className = "balloon";
+let score = 0;
+let timeLeft = 20;
+let playing = true;
 
-    const colors = ["red", "blue", "green", "yellow", "purple", "orange"];
-    balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+function balloon() {
+  if (!playing) return;
 
-    balloon.style.left = Math.random() * 350 + "px";
-    balloon.style.top = "300px";
+  const b = document.createElement("div");
+  b.className = "balloon";
+  const colors = ["red","blue","yellow","purple","green"];
+  b.style.background = colors[Math.floor(Math.random()*colors.length)];
+  b.style.left = Math.random()*350 + "px";
+  b.style.top = "300px";
 
-    let speed = 2;
-    if (difficulty.value === "medium") speed = 4;
-    if (difficulty.value === "hard") speed = 6;
+  let speed = difficulty.value === "hard" ? 6 : difficulty.value === "medium" ? 4 : 2;
 
-    const move = setInterval(() => {
-      balloon.style.top = balloon.offsetTop - speed + "px";
-      if (balloon.offsetTop < -80) {
-        clearInterval(move);
-        balloon.remove();
-      }
-    }, 30);
-
-    balloon.onclick = () => {
-      score++;
-      scoreDisplay.textContent = score;
+  const move = setInterval(() => {
+    b.style.top = b.offsetTop - speed + "px";
+    if (b.offsetTop < -80) {
       clearInterval(move);
-      balloon.remove();
-    };
+      b.remove();
+    }
+  }, 30);
 
-    game.appendChild(balloon);
+  b.onclick = () => {
+    score++;
+    scoreSpan.textContent = score;
+    clearInterval(move);
+    b.remove();
+  };
+
+  game.appendChild(b);
+}
+
+setInterval(balloon, 800);
+
+const timer = setInterval(() => {
+  timeLeft--;
+  timeSpan.textContent = timeLeft;
+  if (timeLeft <= 0) {
+    playing = false;
+    overlay.style.display = "flex";
+    clearInterval(timer);
   }
-
-  setInterval(makeBalloon, 800);
+}, 1000);
 </script>
 
 </body>
