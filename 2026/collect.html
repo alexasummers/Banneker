@@ -41,12 +41,14 @@
   #overlay {
     position: absolute;
     inset: 0;
-    display: none;
-    background: rgba(0,0,0,.6);
-    color: white;
-    font-size: 26px;
+    display: flex;
     align-items: center;
     justify-content: center;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    font-size: 26px;
+    flex-direction: column;
+    visibility: hidden;
   }
 </style>
 </head>
@@ -61,14 +63,16 @@ Difficulty:
   <option value="hard">Hard</option>
 </select>
 
+<button id="start">Start!</button>
+
 <p>
 Score: <span id="score">0</span> |
-Time: <span id="time">30</span>
+Time: <span id="time">0</span>
 </p>
 
 <div id="game">
   <div id="player"></div>
-  <div id="overlay">Time’s Up!</div>
+  <div id="overlay">Time’s Up!<br><small>Choose a new player</small></div>
 </div>
 
 <script>
@@ -78,30 +82,33 @@ const overlay = document.getElementById("overlay");
 const scoreSpan = document.getElementById("score");
 const timeSpan = document.getElementById("time");
 const difficultySelect = document.getElementById("difficulty");
+const startButton = document.getElementById("start");
 
 let x = 180, y = 130;
 let score = 0;
-let timeLeft = 30;
-  
-function getSpeed() {
-  const diff = difficultySelect.value;
-  if (diff === "easy") return 3;
-  if (diff === "medium") return 5;
-  return 8;
-}
+let timeLeft = 0;
+let speed = 0;
+let starCount = 0;
+let playing = false;
+let timer;
 
-let starCount = 5;
-let playing = true;
+/* ---- START GAME ---- */
+startButton.onclick = () => {
+  setupDifficulty();
+  resetGame();
+  startTimer();
+  playing = true;
+};
 
-/* ----- DIFFICULTY SETUP ----- */
-function applyDifficulty() {
-  const diff = difficultySelect.value;
+/* ---- DIFFICULTY ---- */
+function setupDifficulty() {
+  const d = difficultySelect.value;
 
-  if (diff === "easy") {
+  if (d === "easy") {
     speed = 3;
     timeLeft = 40;
     starCount = 4;
-  } else if (diff === "medium") {
+  } else if (d === "medium") {
     speed = 5;
     timeLeft = 30;
     starCount = 6;
@@ -114,7 +121,24 @@ function applyDifficulty() {
   timeSpan.textContent = timeLeft;
 }
 
-/* ----- STARS ----- */
+/* ---- RESET ---- */
+function resetGame() {
+  score = 0;
+  scoreSpan.textContent = score;
+  overlay.style.visibility = "hidden";
+
+  x = 180;
+  y = 130;
+  player.style.left = x + "px";
+  player.style.top = y + "px";
+
+  document.querySelectorAll(".star").forEach(s => s.remove());
+  for (let i = 0; i < starCount; i++) spawnStar();
+
+  clearInterval(timer);
+}
+
+/* ---- STARS ---- */
 function spawnStar() {
   const star = document.createElement("div");
   star.className = "star";
@@ -123,23 +147,14 @@ function spawnStar() {
   game.appendChild(star);
 }
 
-function setupStars() {
-  document.querySelectorAll(".star").forEach(s => s.remove());
-  for (let i = 0; i < starCount; i++) spawnStar();
-}
-
-/* ----- MOVEMENT ----- */
+/* ---- MOVEMENT ---- */
 document.addEventListener("keydown", e => {
   if (!playing) return;
 
-
-const speed = getSpeed();
-
-if (e.key === "ArrowUp") y -= speed;
-if (e.key === "ArrowDown") y += speed;
-if (e.key === "ArrowLeft") x -= speed;
-if (e.key === "ArrowRight") x += speed;
-
+  if (e.key === "ArrowUp") y -= speed;
+  if (e.key === "ArrowDown") y += speed;
+  if (e.key === "ArrowLeft") x -= speed;
+  if (e.key === "ArrowRight") x += speed;
 
   x = Math.max(0, Math.min(360, x));
   y = Math.max(0, Math.min(260, y));
@@ -150,7 +165,7 @@ if (e.key === "ArrowRight") x += speed;
   checkCollisions();
 });
 
-/* ----- COLLISION ----- */
+/* ---- COLLISION ---- */
 function checkCollisions() {
   document.querySelectorAll(".star").forEach(star => {
     if (
@@ -167,21 +182,19 @@ function checkCollisions() {
   });
 }
 
-/* ----- TIMER ----- */
-setInterval(() => {
-  if (!playing) return;
-  timeLeft--;
-  timeSpan.textContent = timeLeft;
+/* ---- TIMER ---- */
+function startTimer() {
+  timer = setInterval(() => {
+    timeLeft--;
+    timeSpan.textContent = timeLeft;
 
-  if (timeLeft <= 0) {
-    playing = false;
-    overlay.style.display = "flex";
-  }
-}, 1000);
-
-/* ----- START GAME ----- */
-applyDifficulty();
-setupStars();
+    if (timeLeft <= 0) {
+      playing = false;
+      overlay.style.visibility = "visible";
+      clearInterval(timer);
+    }
+  }, 1000);
+}
 </script>
 
 </body>
