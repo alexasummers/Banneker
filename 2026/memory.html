@@ -63,7 +63,10 @@ Difficulty:
       card.onclick = () => {
         if (lock || card.dataset.flipped === "true") return;
 
-        card.style.background = color;
+        
+card.style.background = color;
+card.dataset.flipped = "true";
+
 
         if (!firstCard) {
           firstCard = card;
@@ -71,8 +74,12 @@ Difficulty:
           lock = true;
           setTimeout(() => {
             if (firstCard.dataset.color !== card.dataset.color) {
-              firstCard.style.background = "gray";
-              card.style.background = "gray";
+              
+firstCard.style.background = "white";
+card.style.background = "white";
+firstCard.dataset.flipped = "false";
+card.dataset.flipped = "false";
+
             }
             firstCard = null;
             lock = false;
