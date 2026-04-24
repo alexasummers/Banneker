@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Catch the Stars</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+    }
+
+    #game {
+      width: 400px;
+      height: 300px;
+      border: 3px solid black;
+      margin: auto;
+      position: relative;
+      background: black;
+      overflow: hidden;
+    }
+
+    .star {
+      width: 30px;
+      height: 30px;
+      background: gold;
+      border-radius: 50%;
+      position: absolute;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🚀 Catch the Stars</h2>
+
+Difficulty:
+<select id="difficulty">
+  <option value="easy">Easy</option>
+  <option value="hard">Hard</option>
+</select>
+
+<p>Score: <span id="score">0</span></p>
+
+<div id="game"></div>
+
+<script>
+  const game = document.getElementById("game");
+  const scoreDisplay = document.getElementById("score");
+  let score = 0;
+
+  function dropStar() {
+    const star = document.createElement("div");
+    star.className = "star";
+    star.style.left = Math.random() * 370 + "px";
+    star.style.top = "0px";
+
+    let speed = document.getElementById("difficulty").value === "hard" ? 8 : 4;
+
+    let fall = setInterval(() => {
+      star.style.top = star.offsetTop + speed + "px";
+      if (star.offsetTop > 300) {
+        clearInterval(fall);
+        star.remove();
+      }
+    }, 30);
+
+    star.onclick = () => {
+      score++;
+      scoreDisplay.textContent = score;
+      clearInterval(fall);
+      star.remove();
+    };
+
+    game.appendChild(star);
+  }
+
+  setInterval(dropStar, 1000);
+</script>
+
+</body>
+</html>
