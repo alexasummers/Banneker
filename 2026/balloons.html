@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pop the Balloons!</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      background: #eef6ff;
+    }
+
+    #game {
+      width: 400px;
+      height: 300px;
+      border: 3px solid black;
+      margin: 20px auto;
+      position: relative;
+      overflow: hidden;
+      background: skyblue;
+    }
+
+    .balloon {
+      width: 50px;
+      height: 70px;
+      border-radius: 50%;
+      position: absolute;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🎈 Pop the Balloons!</h2>
+
+Difficulty:
+<select id="difficulty">
+  <option value="easy">Easy</option>
+  <option value="medium">Medium</option>
+  <option value="hard">Hard</option>
+</select>
+
+<p>Score: <span id="score">0</span></p>
+
+<div id="game"></div>
+
+<script>
+  const game = document.getElementById("game");
+  const scoreDisplay = document.getElementById("score");
+  let score = 0;
+
+  function makeBalloon() {
+    const balloon = document.createElement("div");
+    balloon.className = "balloon";
+
+    const colors = ["red", "blue", "green", "yellow", "purple", "orange"];
+    balloon.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+    balloon.style.left = Math.random() * 350 + "px";
+    balloon.style.top = "300px";
+
+    let speed = 2;
+    if (difficulty.value === "medium") speed = 4;
+    if (difficulty.value === "hard") speed = 6;
+
+    const move = setInterval(() => {
+      balloon.style.top = balloon.offsetTop - speed + "px";
+      if (balloon.offsetTop < -80) {
+        clearInterval(move);
+        balloon.remove();
+      }
+    }, 30);
+
+    balloon.onclick = () => {
+      score++;
+      scoreDisplay.textContent = score;
+      clearInterval(move);
+      balloon.remove();
+    };
+
+    game.appendChild(balloon);
+  }
+
+  setInterval(makeBalloon, 800);
+</script>
+
+</body>
+</html>
