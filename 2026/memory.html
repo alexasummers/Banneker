@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Memory Match</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+    }
+
+    .grid {
+      display: grid;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .card {
+      width: 80px;
+      height: 80px;
+      background: gray;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<h2>🧠 Memory Match</h2>
+
+Difficulty:
+<select id="difficulty">
+  <option value="easy">Easy</option>
+  <option value="medium">Medium</option>
+  <option value="hard">Hard</option>
+</select>
+<button onclick="startGame()">Start</button>
+
+<div id="grid" class="grid"></div>
+
+<script>
+  const colors = ["red", "blue", "green", "yellow"];
+  let firstCard = null;
+  let lock = false;
+
+  function startGame() {
+    const diff = document.getElementById("difficulty").value;
+    let pairs = diff === "easy" ? 2 : diff === "medium" ? 3 : 4;
+
+    let chosen = colors.slice(0, pairs);
+    let cards = [...chosen, ...chosen].sort(() => Math.random() - 0.5);
+
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
+    grid.style.gridTemplateColumns = `repeat(${pairs}, 1fr)`;
+
+    cards.forEach(color => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.dataset.color = color;
+
+      card.onclick = () => {
+        if (lock || card.style.background !== "gray") return;
+
+        card.style.background = color;
+
+        if (!firstCard) {
+          firstCard = card;
+        } else {
+          lock = true;
+          setTimeout(() => {
+            if (firstCard.dataset.color !== card.dataset.color) {
+              firstCard.style.background = "gray";
+              card.style.background = "gray";
+            }
+            firstCard = null;
+            lock = false;
+          }, 600);
+        }
+      };
+
+      grid.appendChild(card);
+    });
+  }
+</script>
+
+</body>
+</html>
