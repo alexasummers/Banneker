@@ -2,88 +2,133 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Catch the Stars!!</title>
+<title>Catch the Falling Stars!</title>
 
 <style>
-  body { font-family: Arial; text-align: center; background: black; color:white;}
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background: black;
+    color: white;
+  }
+
   #game {
-    width: 400px; height: 300px;
+    width: 400px;
+    height: 300px;
     border: 3px solid white;
     margin: 20px auto;
     position: relative;
     background: black;
+    overflow: hidden;
   }
+
   .star {
-    width: 30px; height: 30px;
+    width: 30px;
+    height: 30px;
     background: gold;
     border-radius: 50%;
     position: absolute;
-    cursor:pointer;
+    cursor: pointer;
   }
+
   #overlay {
-    position:absolute; inset:0;
-    background: rgba(0,0,0,.7);
-    display:none;
-    align-items:center;
-    justify-content:center;
-    font-size:26px;
+    position: absolute;
+    inset: 0;
+    display: none;
+    background: rgba(0,0,0,0.7);
+    font-size: 26px;
+    align-items: center;
+    justify-content: center;
   }
 </style>
 </head>
 <body>
 
-<h2>🌠 Catch the Falling Stars</h2>
+<h2>🌠 Catch the Falling Stars!</h2>
 
-<p>Score: <span id="score">0</span> | Time: <span id="time">20</span></p>
+Difficulty:
+<select id="difficulty">
+  <option value="easy">Easy</option>
+  <option value="medium" selected>Medium</option>
+  <option value="hard">Hard</option>
+</select>
+
+<p>
+Score: <span id="score">0</span> |
+Time: <span id="time">20</span>
+</p>
 
 <div id="game">
   <div id="overlay">Time’s Up!</div>
 </div>
 
 <script>
-const game=document.getElementById("game");
-const scoreSpan=document.getElementById("score");
-const timeSpan=document.getElementById("time");
-const overlay=document.getElementById("overlay");
+const game = document.getElementById("game");
+const scoreSpan = document.getElementById("score");
+const timeSpan = document.getElementById("time");
+const overlay = document.getElementById("overlay");
+const difficultySelect = document.getElementById("difficulty");
 
-let score=0, timeLeft=20, playing=true;
+let score = 0;
+let timeLeft = 20;
+let playing = true;
 
-function star() {
-  if(!playing) return;
+/* ----- DIFFICULTY SETTINGS ----- */
+function getDifficulty() {
+  if (difficultySelect.value === "easy") {
+    return { speed: 3, spawn: 1000 };
+  }
+  if (difficultySelect.value === "hard") {
+    return { speed: 7, spawn: 500 };
+  }
+  return { speed: 5, spawn: 750 };
+}
 
-  const s=document.createElement("div");
-  s.className="star";
-  s.style.left=Math.random()*370+"px";
-  s.style.top="0px";
+/* ----- STAR FALL ----- */
+function makeStar() {
+  if (!playing) return;
 
-  const fall=setInterval(()=>{
-    s.style.top=s.offsetTop+4+"px";
-    if(s.offsetTop>300){
+  const { speed } = getDifficulty();
+  const s = document.createElement("div");
+  s.className = "star";
+  s.style.left = Math.random() * 370 + "px";
+  s.style.top = "0px";
+  game.appendChild(s);
+
+  const fall = setInterval(() => {
+    s.style.top = s.offsetTop + speed + "px";
+    if (s.offsetTop > 300) {
       clearInterval(fall);
       s.remove();
     }
-  },30);
+  }, 30);
 
-  s.onclick=()=>{
+  s.onclick = () => {
     score++;
-    scoreSpan.textContent=score;
+    scoreSpan.textContent = score;
     clearInterval(fall);
     s.remove();
   };
-
-  game.appendChild(s);
 }
 
-setInterval(star,800);
+let spawnLoop = setInterval(makeStar, 750);
 
-setInterval(()=>{
+/* ----- UPDATE DIFFICULTY LIVE ----- */
+difficultySelect.onchange = () => {
+  clearInterval(spawnLoop);
+  spawnLoop = setInterval(makeStar, getDifficulty().spawn);
+};
+
+/* ----- TIMER ----- */
+setInterval(() => {
   timeLeft--;
-  timeSpan.textContent=timeLeft;
-  if(timeLeft<=0){
-    playing=false;
-    overlay.style.display="flex";
+  timeSpan.textContent = timeLeft;
+
+  if (timeLeft <= 0) {
+    playing = false;
+    overlay.style.display = "flex";
   }
-},1000);
+}, 1000);
 </script>
 
 </body>
